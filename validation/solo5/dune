@@ -1,0 +1,22 @@
+; The Mirage link proof.
+;
+; This executable names the offline closure and no transport. If tron-types,
+; tron-crypto, tron-proto, tron-transaction or tron-rpc ever acquires a Unix,
+; Lwt or socket dependency -- directly, or through something they depend on --
+; this stops linking. That is the check; running it is a bonus.
+;
+; It is deliberately an ordinary native executable rather than a Solo5 image.
+; Cross-compiling to sptmac is a separate, heavier exercise with its own
+; unresolved question (GMP), recorded in ../../docs/unikernel.md. This target
+; answers the question that can be answered on every CI runner, on every
+; commit, from the first milestone rather than at release time.
+
+(executable
+ (name unikernel)
+ (libraries
+  tron-types
+  tron-crypto
+  tron-proto
+  tron-transaction
+  tron-rpc
+  yojson))

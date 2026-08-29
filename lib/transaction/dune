@@ -1,0 +1,20 @@
+; The offline heart: build raw_data, hash it, sign it, and derive a reviewable
+; intent back out of the bytes. No unix, no lwt, no clock, no RNG -- expiration
+; and timestamp are inputs, never read from a clock here.
+;
+; evm-abi rather than a Tron-specific ABI encoder: TVM calls use Ethereum's
+; head/tail encoding unchanged, and the difference that does exist -- the
+; address type is the 20-byte form, not the 21-byte one -- lives in
+; Tron_types.Address.to_abi_word, not in the encoder.
+
+(library
+ (name tron_transaction)
+ (public_name tron-transaction)
+ (libraries
+  tron-types
+  tron-crypto
+  tron-proto
+  web3-codec-protobuf
+  evm-abi
+  digestif
+  zarith))

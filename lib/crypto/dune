@@ -1,0 +1,21 @@
+; Two secp256k1 backends, deliberately.
+;
+; mirage-crypto-ec's P256k1.Dsa is fiat-crypto generated, constant time, and is
+; the only thing a private key is handed to. mirage-crypto-blockchain's
+; Secp256k1 is a plain double-and-add reference implementation carrying a "NOT
+; CONSTANT TIME" banner in its own .mli; it is used only for recovery, which
+; runs on a signature and a digest that are about to be published anyway.
+;
+; ocaml-evm's evm-crypto makes exactly this split. Do not collapse it: the
+; reference backend also offers sign and sign_recoverable, and calling either
+; would put a secret key through non-constant-time scalar multiplication.
+
+(library
+ (name tron_crypto)
+ (public_name tron-crypto)
+ (libraries
+  tron-types
+  digestif
+  mirage-crypto-ec
+  mirage-crypto-blockchain
+  zarith))

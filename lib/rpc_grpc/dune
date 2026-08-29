@@ -1,0 +1,32 @@
+; gRPC over the same Mirage_flow.S the HTTP client uses.
+;
+; Deliberately h2-lwt and not h2-mirage. h2-mirage would do the functorising
+; for us, but its closure is 48 packages -- conduit-mirage, tcpip, tls, x509,
+; dns-client, vchan, xenstore -- because it assumes a full network stack. The
+; confidential Solo5 targets have no such stack; they have a vsock. What h2
+; actually needs from a transport is Gluten_lwt.IO, which is four functions,
+; so Io_of_flow implements those over a flow and the cone stays small.
+;
+; The consequence is that gRPC reaches the same places HTTP does, rather than
+; being a Unix-only afterthought.
+
+(library
+ (name tron_rpc_grpc)
+ (public_name tron-rpc-grpc)
+ (libraries
+  tron-types
+  tron-transaction
+  tron-proto
+  tron-rpc
+  web3-codec-protobuf
+  grpc
+  grpc-lwt
+  h2
+  h2-lwt
+  gluten-lwt
+  faraday
+  bigstringaf
+  lwt
+  cstruct
+  mirage-flow
+  fmt))

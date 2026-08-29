@@ -1,0 +1,10 @@
+_build/
+_opam/
+*.install
+conformance/tronweb/node_modules/
+conformance/trident/.gradle/
+conformance/trident/build/
+validation/solo5*/*.hvt
+validation/solo5*/*.spt
+validation/solo5*/*.o
+nile-evidence/

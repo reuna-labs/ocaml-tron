@@ -1,0 +1,93 @@
+(test
+ (name test_types)
+ (modules test_types)
+ (package tron-types)
+ (libraries tron-types alcotest qcheck-core qcheck-alcotest))
+
+; The crypto tests read the conformance fixtures, so dune has to copy them into
+; the build tree. They are data_only_dirs at the root, which is what stops dune
+; looking for dune files inside conformance/.
+
+(test
+ (name test_crypto)
+ (modules test_crypto fixture)
+ (package tron-crypto)
+ (deps
+  (glob_files ../conformance/fixtures/*.json))
+ (libraries tron-types tron-crypto alcotest))
+
+(test
+ (name test_transaction)
+ (modules test_transaction fixture_tx)
+ (package tron-transaction)
+ (deps
+  (glob_files ../conformance/fixtures/*.json))
+ (libraries
+  tron-types
+  tron-crypto
+  tron-transaction
+  tron-proto
+  web3-codec-protobuf
+  evm-abi
+  digestif
+  zarith
+  alcotest))
+
+(test
+ (name test_intent)
+ (modules test_intent fixture_intent)
+ (package tron-transaction)
+ (deps
+  (glob_files ../conformance/fixtures/*.json))
+ (libraries
+  tron-types
+  tron-transaction
+  tron-proto
+  web3-codec-protobuf
+  zarith
+  str
+  alcotest))
+
+; A canned-reply provider: the point of the transport boundary is that the
+; client can be exercised without a socket, so these tests have none.
+
+(test
+ (name test_rpc)
+ (modules test_rpc)
+ (package tron-rpc)
+ (libraries tron-types tron-transaction tron-rpc yojson alcotest))
+
+(test
+ (name test_http)
+ (modules test_http)
+ (package tron-rpc-flow)
+ (libraries tron-rpc-flow alcotest))
+
+; Cross-oracle: where TronWeb and trident agree, ocaml-tron must match both;
+; where they disagree, the disagreement is asserted rather than resolved by
+; picking a favourite.
+
+(test
+ (name test_conformance)
+ (modules test_conformance fixture_conf)
+ (package tron)
+ (deps
+  (glob_files ../conformance/fixtures/*.json))
+ (libraries tron-types tron-crypto tron-transaction alcotest))
+
+; The G6 gate: HTTP and gRPC must decode to the same values. No socket -- each
+; transport's decoder is fed a body the node would have sent, and the results
+; are compared.
+
+(test
+ (name test_grpc_parity)
+ (modules test_grpc_parity)
+ (package tron-rpc-grpc)
+ (libraries
+  tron-types
+  tron-rpc
+  tron-rpc-grpc
+  tron-proto
+  web3-codec-protobuf
+  yojson
+  alcotest))

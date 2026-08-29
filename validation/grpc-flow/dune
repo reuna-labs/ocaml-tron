@@ -1,0 +1,14 @@
+; The claim tron-rpc-grpc makes is that gRPC reaches the same places HTTP does
+; -- a Solo5 vsock included. This target is that claim, checked.
+;
+; It instantiates the client over a flow that is not a socket at all, and names
+; no Unix package. If Io_of_flow ever needs something only a real file
+; descriptor has, or if h2's closure acquires unix, this stops linking.
+;
+; Deliberately not a Solo5 image. Cross-compiling is a separate exercise with
+; its own open question about GMP -- see ../../docs/unikernel.md. This answers
+; the part that can be answered on every runner, on every commit.
+
+(executable
+ (name grpc_flow_link)
+ (libraries tron-types tron-rpc tron-rpc-grpc lwt cstruct mirage-flow fmt))

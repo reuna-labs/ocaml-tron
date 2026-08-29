@@ -1,0 +1,24 @@
+; The guarded live-network executable. Not part of the library: it is the only
+; thing in this repository that signs with a real key and touches a network,
+; and it is reached only through the manually-dispatched nile-smoke workflow.
+
+(executable
+ (name nile_transfer)
+ (public_name tron-nile-transfer)
+ (package tron-rpc-unix)
+ (libraries
+  tron-types
+  tron-crypto
+  tron-transaction
+  tron-rpc
+  tron-rpc-unix
+  lwt
+  lwt.unix
+  unix
+  uri))
+
+(executable
+ (name address_of_key)
+ (package tron-rpc-unix)
+ (public_name tron-address-of-key)
+ (libraries tron-types tron-crypto))

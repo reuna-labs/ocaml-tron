@@ -1,0 +1,29 @@
+# DEVELOPMENT ONLY -- delete this file before submitting to opam-repository.
+#
+# Every one of these is a Reuna fork or an unreleased sibling, so a standalone
+# `opam install --deps-only .` cannot solve without them. That they are needed
+# at all is the G0 launch gate -- "no opam file points to a private repository"
+# -- which this repository does not clear. Recording it here rather than
+# omitting it keeps the gap visible.
+#
+# dune regenerates tron.opam from dune-project and silently drops whatever
+# follows. Re-append this block after any regeneration, or the package solves
+# against released mirage-crypto, which has no Secp256k1 and no Keccak256.
+
+pin-depends: [
+  [ "mirage-crypto.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
+  [ "mirage-crypto-rng.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
+  [ "mirage-crypto-ec.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
+  [ "mirage-crypto-blockchain.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
+  [ "digestif.dev" "git+https://github.com/reuna-labs/digestif.git#toolchain/ocaml-5.5" ]
+  [ "web3-codec-basen.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
+  [ "web3-codec-base58.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
+  [ "web3-codec-protobuf.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
+  [ "evm-types.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
+  [ "evm-abi.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
+  # grpc.0.2.0 caps h2 < 0.13.0, and the Mirage-capable h2 is 0.13.0. The fix
+  # is unreleased; this is the commit ocaml-cometbft vetted for the same
+  # reason. Only tron-rpc-grpc needs it.
+  [ "grpc.dev" "git+https://github.com/dialohq/ocaml-grpc.git#b629b55f" ]
+  [ "grpc-lwt.dev" "git+https://github.com/dialohq/ocaml-grpc.git#b629b55f" ]
+]

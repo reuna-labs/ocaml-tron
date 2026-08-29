@@ -1,0 +1,8 @@
+; The offline surface. Transports are deliberately absent: tron-rpc-flow and
+; tron-rpc-unix are separate packages so that a consumer linking this one takes
+; on no Lwt, no Unix and no socket.
+
+(library
+ (name tron)
+ (public_name tron)
+ (libraries tron-types tron-crypto tron-proto tron-transaction tron-rpc))

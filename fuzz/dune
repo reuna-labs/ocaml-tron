@@ -1,0 +1,30 @@
+; Property fuzzing for the parsers and the two pure state machines.
+;
+; Crowbar generates structured input and shrinks a failure to something a human
+; can read. Under an ordinary switch these run as bounded randomised tests,
+; which is what CI does; under an AFL-instrumented switch the same executables
+; are afl-fuzz targets. Building them both ways from one source is the point --
+; a fuzz target that only exists on a special switch stops compiling and nobody
+; notices.
+;
+; See ../docs/fuzzing.md for how to run these properly.
+
+(executables
+ (names
+  fuzz_address
+  fuzz_raw_data
+  fuzz_http
+  fuzz_json
+  fuzz_signature
+  fuzz_submission)
+ (libraries
+  tron-types
+  tron-crypto
+  tron-transaction
+  tron-proto
+  tron-rpc
+  tron-rpc-flow
+  web3-codec-protobuf
+  digestif
+  yojson
+  crowbar))

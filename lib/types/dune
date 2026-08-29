@@ -1,0 +1,11 @@
+; zarith arrives here whether we want it or not: web3-codec-base58 sits on
+; web3-codec-basen, which is zarith-backed. See AGENTS.md -- GMP is unavoidable
+; in this repository, unlike ocaml-cardano.
+;
+; What must stay true is the rest: no unix, no lwt, no clock, no RNG.
+; test/no_io_guard.sh checks it from the declared dependencies.
+
+(library
+ (name tron_types)
+ (public_name tron-types)
+ (libraries web3-codec-base58))

@@ -1,0 +1,6 @@
+; These hold data and prose, not buildable content: dune should copy the
+; fixtures into the build tree so tests can depend on them, but not look for
+; dune files inside any of them. proto/ is input to a generator that runs by
+; hand, never as part of a build.
+
+(data_only_dirs conformance proto docs)

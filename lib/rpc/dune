@@ -1,0 +1,9 @@
+; Transport-free. yojson and the offline packages, nothing else: no unix, no
+; lwt, no socket. The method catalogue, the JSON codecs and the submission and
+; confirmation state machines are all pure, which is what lets the same client
+; run over a Unix fd, a Solo5 vsock flow, or a table of canned replies.
+
+(library
+ (name tron_rpc)
+ (public_name tron-rpc)
+ (libraries tron-types tron-transaction yojson))

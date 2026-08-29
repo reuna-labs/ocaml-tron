@@ -1,0 +1,44 @@
+(vendored_dirs duniverse)
+
+; Only in the cross context: the link flags name a Solo5 ABI, which the host
+; linker knows nothing about.
+;
+; -z solo5-abi=sptmac must reach the cc wrapper as two plain arguments, so it
+; goes through -ccopt (the compiler driver) rather than -cclib (the linker) and
+; is not wrapped in -Wl,. Get this wrong and the wrapper never sees it, silently
+; falls back to the stub bindings, and the binary links but carries no ABI note
+; -- which solo5-elftool then rejects with "note does not fall within valid
+; size". It looks like a linker-script bug and is a flag-plumbing one.
+;
+; -lgmp is the Tron-specific part, and the reason this directory exists: Base58,
+; secp256k1 recovery and the ABI's uint256 all need a bignum, so unlike
+; ocaml-cardano this guest cannot avoid GMP. The archive is cross-built by
+; build.sh; see ../../docs/unikernel.md.
+
+(executable
+ (name unikernel)
+ (modules unikernel solo5_exit)
+ (libraries tron-types tron-crypto tron-proto tron-transaction zarith)
+ (enabled_if
+  (= %{context_name} "default.solo5"))
+ (foreign_stubs
+  (language c)
+  ; nolibc_gaps supplies the ctype functions and the vsprintf that nolibc
+  ; lacks and GMP's printf/scanf modules reference. Nothing about memory: the
+  ; allocator is redirected by <_solo5/overrides.h>, which ocaml-solo5's
+  ; ocaml-gcc wrapper force-includes into every C compile here already.
+  (names shim manifest mirage_mm mirage_clock nolibc_gaps)
+  (flags
+   -I%{env:OPAM_SWITCH_PREFIX=/}/include/solo5
+   -I%{env:OPAM_SWITCH_PREFIX=/}/lib/ocaml-solo5/lib/ocaml
+   -include
+   %{dep:gmp_solo5_compat.h}))
+ (link_flags
+  (-ccopt
+   -z
+   -ccopt
+   solo5-abi=sptmac
+   -cclib
+   -L%{env:GMP_SOLO5_LIB=/}
+   -cclib
+   -lgmp)))

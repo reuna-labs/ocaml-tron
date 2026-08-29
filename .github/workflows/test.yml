@@ -1,0 +1,153 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The oracles first: if the fixtures have drifted, everything downstream is
+  # being checked against the wrong answer.
+  sdk-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Regenerate the TronWeb fixture
+        run: |
+          npm ci --prefix conformance/tronweb
+          npm --prefix conformance/tronweb run generate
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Regenerate the trident fixture
+        run: |
+          cd conformance/trident
+          gradle run --no-daemon
+
+      # A generator that no longer reproduces the committed bytes means either
+      # the SDK changed or we did. Either way it is not something to discover
+      # at release time.
+      - name: The fixtures must not have moved
+        run: git diff --exit-code conformance/fixtures/
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml-compiler: ["4.14.2", "5.2.1"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Are the private prerequisites reachable?
+        id: creds
+        env:
+          TOKEN: ${{ secrets.REUNA_CI_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Build skipped::REUNA_CI_TOKEN is not configured"
+          fi
+
+      - name: Let git reach private Reuna repositories
+        if: steps.creds.outputs.ok == 'true'
+        env:
+          TOKEN: ${{ secrets.REUNA_CI_TOKEN }}
+        run: |
+          git config --global \
+            url."https://x-access-token:${TOKEN}@github.com/".insteadOf \
+            "https://github.com/"
+
+      - uses: ocaml/setup-ocaml@v3
+        if: steps.creds.outputs.ok == 'true'
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      # zarith is in this closure and cannot be removed -- Base58 needs it, and
+      # so does secp256k1 public-key recovery. See docs/unikernel.md. A
+      # hash-verified GMP in a runner-temp prefix keeps that from needing root
+      # or a host package manager.
+      - name: Build the GMP prerequisite without host privileges
+        if: steps.creds.outputs.ok == 'true'
+        env:
+          GMP_VERSION: "6.3.0"
+          GMP_SHA256: a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
+        run: |
+          archive="$RUNNER_TEMP/gmp-$GMP_VERSION.tar.xz"
+          source_dir="$(mktemp --directory "$RUNNER_TEMP/gmp-build.XXXXXX")"
+          gmp_prefix="$RUNNER_TEMP/ocaml-tron-gmp-${{ matrix.ocaml-compiler }}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --connect-timeout 20 --output "$archive" \
+            "https://ftp.gnu.org/gnu/gmp/gmp-$GMP_VERSION.tar.xz"
+          echo "$GMP_SHA256  $archive" | sha256sum --check --strict
+          tar --extract --xz --file "$archive" --directory "$source_dir" \
+            --strip-components 1
+          cd "$source_dir"
+          ./configure --prefix="$gmp_prefix" --with-pic
+          make -j"$(nproc)"
+          make install
+          echo "CPATH=$gmp_prefix/include" >> "$GITHUB_ENV"
+          echo "LIBRARY_PATH=$gmp_prefix/lib" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$gmp_prefix/lib" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=$gmp_prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+
+      # The private dependency closure. These are the pins docs/switch.md
+      # documents; a clean public install is a G0 launch gate this repository
+      # does not yet clear, and pretending otherwise here would hide it.
+      - name: Pin the peer packages
+        if: steps.creds.outputs.ok == 'true'
+        run: |
+          opam pin add -yn web3-codec-basen    https://github.com/reuna-labs/ocaml-web3-codec.git
+          opam pin add -yn web3-codec-base58   https://github.com/reuna-labs/ocaml-web3-codec.git
+          opam pin add -yn web3-codec-protobuf https://github.com/reuna-labs/ocaml-web3-codec.git
+          opam pin add -yn evm-types           https://github.com/reuna-labs/ocaml-evm.git
+          opam pin add -yn evm-abi             https://github.com/reuna-labs/ocaml-evm.git
+          M=git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.1-alpha1
+          opam pin add -yn mirage-crypto.dev "$M"
+          opam pin add -yn mirage-crypto-rng.dev "$M"
+          opam pin add -yn mirage-crypto-ec.dev "$M"
+          opam pin add -yn mirage-crypto-blockchain.dev "$M"
+          opam pin add -yn grpc     https://github.com/reuna-labs/ocaml-grpc.git#main
+          opam pin add -yn grpc-lwt https://github.com/reuna-labs/ocaml-grpc.git#main
+
+      - if: steps.creds.outputs.ok == 'true'
+        run: opam install -y --assume-depexts --deps-only --with-test .
+
+      - if: steps.creds.outputs.ok == 'true'
+        run: opam exec -- dune build @all
+
+      - if: steps.creds.outputs.ok == 'true'
+        run: opam exec -- dune runtest
+
+      # Two ways of asking whether the offline packages are still free of I/O:
+      # their declared dependencies, and whether the closure still links with
+      # no transport at all.
+      - name: The offline closure must stay free of I/O
+        if: steps.creds.outputs.ok == 'true'
+        run: opam exec -- ./test/no_io_guard.sh
+
+      # Bounded randomised runs, not a campaign. A real campaign needs an
+      # AFL-instrumented compiler and its own switch; see docs/fuzzing.md.
+      # Building them here is what keeps them from bit-rotting.
+      - name: Fuzz targets
+        if: steps.creds.outputs.ok == 'true'
+        run: |
+          opam exec -- dune build fuzz/
+          for t in _build/default/fuzz/*.exe; do
+            echo "== $t"
+            "$t"
+          done
+
+      - name: Formatting
+        if: steps.creds.outputs.ok == 'true'
+        run: opam exec -- dune build @fmt
+        continue-on-error: false

@@ -1,0 +1,13 @@
+; Tron_rpc_flow.Make applied to a Unix file descriptor, plus dialling. There is
+; no Unix-specific client code, so the Unix path and the unikernel path are the
+; same implementation with a different flow underneath.
+;
+; Dialling lives here rather than one layer up on purpose: a unikernel's
+; connection comes from a device it owns, and putting a getaddrinfo into
+; tron-rpc-flow would be a Unix dependency in the one layer that must not have
+; one.
+
+(library
+ (name tron_rpc_unix)
+ (public_name tron-rpc-unix)
+ (libraries tron-rpc tron-rpc-flow lwt lwt.unix unix mirage-flow-unix))

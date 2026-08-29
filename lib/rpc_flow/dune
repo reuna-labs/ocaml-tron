@@ -1,0 +1,14 @@
+; This package owns the socket. The framing above it is pure and lives in
+; tron-rpc; the HTTP/1.1 parser here is pure too, and separated from the flow so
+; it can be driven a byte at a time -- which is how a real socket delivers, and
+; where framing bugs actually live.
+;
+; Functorised over Mirage_flow.S rather than over an HTTP client because the
+; confidential Solo5 targets forbid NET_BASIC outright and sptmac has no
+; networking at all, so vsock is the only transport there. TLS wraps the flow
+; rather than living here: a TLS flow is a flow.
+
+(library
+ (name tron_rpc_flow)
+ (public_name tron-rpc-flow)
+ (libraries tron-rpc yojson lwt cstruct mirage-flow fmt))

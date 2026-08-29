@@ -1,0 +1,13 @@
+{
+  "name": "ocaml-tron-conformance-tronweb",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Regenerates the golden fixtures from a locked TronWeb. Never run against a network: every value here is produced offline.",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "dependencies": {
+    "tronweb": "6.5.0"
+  }
+}

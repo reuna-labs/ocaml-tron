@@ -1,0 +1,42 @@
+// Regenerates conformance/fixtures/trident-<version>.json.
+//
+// trident is the official java-tron client SDK, so this is the closest thing
+// to the node's own encoder available outside a node. Where it and TronWeb
+// disagree, trident is the stronger evidence about what java-tron will accept
+// -- and the disagreement itself is worth a test rather than a choice.
+//
+// Everything here runs offline. trident's ApiWrapper talks to a node; none of
+// that is used. Only the pure pieces are: the generated protobuf types, the
+// key/address helpers, and the ABI encoder.
+
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Pinned exactly. A range here would make the fixture depend on when it
+    // was generated rather than on what it is generated from.
+    implementation 'io.github.tronprotocol:trident:1.0.0'
+}
+
+application {
+    mainClass = 'io.reuna.tron.conformance.Generate'
+}
+
+// Deliberately not a `toolchain { languageVersion = ... }` block. That pins an
+// exact JDK and then fails on any machine that does not have it installed,
+// including CI runners, unless a download repository is configured. What
+// actually matters for a fixture generator is the bytecode level it targets,
+// which `release` fixes without dictating which JDK compiles it.
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+tasks.named('run') {
+    // The fixture path is relative to the repository root, two levels up.
+    args = [ "${projectDir}/../fixtures" ]
+}
