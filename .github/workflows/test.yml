@@ -8,7 +8,7 @@ jobs:
   # The oracles first: if the fixtures have drifted, everything downstream is
   # being checked against the wrong answer.
   sdk-conformance:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, reuna-builder-x86]
     steps:
       - uses: actions/checkout@v4
 
@@ -38,7 +38,7 @@ jobs:
         run: git diff --exit-code conformance/fixtures/
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, reuna-builder-x86]
     strategy:
       fail-fast: false
       matrix:
