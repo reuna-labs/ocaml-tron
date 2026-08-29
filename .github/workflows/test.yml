@@ -111,7 +111,7 @@ jobs:
           opam pin add -yn web3-codec-protobuf https://github.com/reuna-labs/ocaml-web3-codec.git
           opam pin add -yn evm-types           https://github.com/reuna-labs/ocaml-evm.git
           opam pin add -yn evm-abi             https://github.com/reuna-labs/ocaml-evm.git
-          M=git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.1-alpha1
+          M=git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1
           opam pin add -yn mirage-crypto.dev "$M"
           opam pin add -yn mirage-crypto-rng.dev "$M"
           opam pin add -yn mirage-crypto-ec.dev "$M"

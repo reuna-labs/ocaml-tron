@@ -61,7 +61,7 @@
 
 (package
  (name tron-crypto)
- (synopsis "secp256k1 recoverable signing for Tron")
+ (synopsis "Secp256k1 recoverable signing for Tron")
  (description
   "Signs the 32-byte SHA-256 digest of a serialized raw_data and produces Tron's\n65-byte r-s-v wire signature, where v is the raw recovery id.\n\nSecret-dependent curve operations use mirage-crypto-ec's fiat-crypto P256k1\nbackend. Recovery, which runs on public data, uses mirage-crypto-blockchain's\nreference implementation -- which is documented NOT CONSTANT TIME and must\nnever be handed a secret key. This split follows ocaml-evm's evm-crypto.\n\nNo RNG: nonces are RFC 6979 deterministic.")
  (depends
@@ -107,7 +107,7 @@
 
 (package
  (name tron-rpc-flow)
- (synopsis "java-tron HTTP over any Mirage_flow.S, including Solo5 vsock")
+ (synopsis "Java-tron HTTP over any Mirage_flow.S, including Solo5 vsock")
  (description
   "The HTTP/1.1 framing lives here as a pure parser and the client is a functor\nover Mirage_flow.S; this package owns the socket. Functorising over a flow\nrather than over an HTTP client is not a preference: the confidential Solo5\ntargets forbid NET_BASIC outright, and sptmac has no networking at all, so\nvsock is the only transport available there. TLS composes as Tls_mirage.Make\nover the same signature.")
  (depends
@@ -122,7 +122,7 @@
 
 (package
  (name tron-rpc-grpc)
- (synopsis "java-tron gRPC over any Mirage_flow.S, including Solo5 vsock")
+ (synopsis "Java-tron gRPC over any Mirage_flow.S, including Solo5 vsock")
  (description
   "The Wallet service over gRPC, decoding into the same typed values the HTTP\nclient produces, so that the two wire paths can be compared rather than merely\ncoexisting.\n\nFunctorised over the same flow signature as tron-rpc-flow. Not h2-mirage: that\npackage would do the functorising, but its closure is 48 packages --\nconduit-mirage, tcpip, tls, x509, dns-client, vchan, xenstore -- because it\nassumes a full network stack, and the confidential Solo5 targets have a vsock\ninstead. What h2 needs from a transport is Gluten_lwt.IO, which is four\nfunctions, so this implements those over a flow directly.")
  (depends

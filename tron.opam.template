@@ -11,19 +11,19 @@
 # against released mirage-crypto, which has no Secp256k1 and no Keccak256.
 
 pin-depends: [
-  [ "mirage-crypto.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
-  [ "mirage-crypto-rng.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
-  [ "mirage-crypto-ec.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
-  [ "mirage-crypto-blockchain.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#toolchain/ocaml-5.5" ]
-  [ "digestif.dev" "git+https://github.com/reuna-labs/digestif.git#toolchain/ocaml-5.5" ]
+  [ "mirage-crypto.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
+  [ "mirage-crypto-rng.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
+  [ "mirage-crypto-ec.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
+  [ "mirage-crypto-blockchain.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
+  [ "digestif.dev" "git+https://github.com/reuna-labs/digestif.git#release/1.4.0-alpha1" ]
   [ "web3-codec-basen.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
   [ "web3-codec-base58.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
   [ "web3-codec-protobuf.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
   [ "evm-types.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
   [ "evm-abi.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
   # grpc.0.2.0 caps h2 < 0.13.0, and the Mirage-capable h2 is 0.13.0. The fix
-  # is unreleased; this is the commit ocaml-cometbft vetted for the same
-  # reason. Only tron-rpc-grpc needs it.
-  [ "grpc.dev" "git+https://github.com/dialohq/ocaml-grpc.git#b629b55f" ]
-  [ "grpc-lwt.dev" "git+https://github.com/dialohq/ocaml-grpc.git#b629b55f" ]
+  # is staged in the private Reuna mirror pending an upstream release. Only
+  # tron-rpc-grpc needs it.
+  [ "grpc.dev" "git+https://github.com/reuna-labs/ocaml-grpc.git#main" ]
+  [ "grpc-lwt.dev" "git+https://github.com/reuna-labs/ocaml-grpc.git#main" ]
 ]
