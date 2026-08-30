@@ -123,5 +123,8 @@ jobs:
           done
 
       - name: Formatting
+        run: opam install -y ocamlformat.0.29.0
+
+      - name: Formatting check
         run: opam exec -- dune build @fmt
         continue-on-error: false
