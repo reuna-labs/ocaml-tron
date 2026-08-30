@@ -67,12 +67,13 @@ which chain its reference block came from cannot claim the transaction is bound
 to one; `Network.verify` against the node's genesis block is how to find out,
 and it has to happen before signing.
 
-### The Unix transport is plaintext
+### The Unix transport verifies public HTTPS endpoints
 
-`tron-rpc-unix` speaks HTTP/1.1 over whatever flow it is given. Public Tron
-endpoints are HTTPS. Wrap the descriptor in a TLS flow before handing it over —
-a TLS flow is a flow — or point it at a local node. `examples/nile_transfer.ml`
-refuses an `https://` URL rather than connecting anyway.
+`tron-rpc-unix` selects TLS for `https://`, using the system trust store with
+hostname verification and SNI. Plaintext remains available only through an
+explicit `http://` endpoint, a raw TCP connection, or a Unix socket. TLS lives
+in the Unix adapter so the pure and Mirage flow packages do not acquire a host
+trust store or network stack.
 
 ## Signing elsewhere
 

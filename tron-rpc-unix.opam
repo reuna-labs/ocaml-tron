@@ -3,9 +3,9 @@ opam-version: "2.0"
 version: "0.1.0~alpha1"
 synopsis: "Unix transport for the java-tron HTTP client"
 description: """
-Cardano's arrangement: this is Tron_rpc_flow.Make applied to a Unix file
-descriptor and nothing else, so the Unix path and the unikernel path are the
-same implementation with a different flow underneath."""
+Tron_rpc_flow.Make over a Unix descriptor or a verified TLS flow. HTTPS
+uses the system CA store, hostname verification and SNI; the pure and Mirage
+flow packages remain free of Unix/TLS dependencies."""
 maintainer: ["Gil Bahat <bahat.gil@gmail.com>"]
 authors: ["Gil Bahat <bahat.gil@gmail.com>"]
 license: "ISC"
@@ -19,7 +19,14 @@ depends: [
   "tron-transaction" {= version}
   "tron-crypto" {= version}
   "lwt" {>= "5.6.0"}
+  "mirage-flow" {>= "4.0.0"}
   "mirage-flow-unix" {>= "4.0.0"}
+  "tls" {>= "2.0.0"}
+  "tls-lwt" {>= "2.0.0"}
+  "x509"
+  "ca-certs"
+  "cstruct"
+  "fmt"
   "uri" {>= "4.2.0"}
   "alcotest" {with-test}
   "odoc" {with-doc}

@@ -150,7 +150,7 @@
  (name tron-rpc-unix)
  (synopsis "Unix transport for the java-tron HTTP client")
  (description
-  "Cardano's arrangement: this is Tron_rpc_flow.Make applied to a Unix file\ndescriptor and nothing else, so the Unix path and the unikernel path are the\nsame implementation with a different flow underneath.")
+  "Tron_rpc_flow.Make over a Unix descriptor or a verified TLS flow. HTTPS\nuses the system CA store, hostname verification and SNI; the pure and Mirage\nflow packages remain free of Unix/TLS dependencies.")
  (depends
   (ocaml (>= 4.14))
   (dune (>= 3.6))
@@ -159,7 +159,14 @@
   (tron-transaction (= :version))
   (tron-crypto (= :version))
   (lwt (>= 5.6.0))
+  (mirage-flow (>= 4.0.0))
   (mirage-flow-unix (>= 4.0.0))
+  (tls (>= 2.0.0))
+  (tls-lwt (>= 2.0.0))
+  x509
+  ca-certs
+  cstruct
+  fmt
   ; examples/nile_transfer.exe, the guarded live-network executable, ships in
   ; this package: it is the only thing here that signs with a real key and
   ; touches a network, and it needs a Unix transport to do either.

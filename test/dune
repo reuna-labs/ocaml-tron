@@ -63,6 +63,12 @@
  (package tron-rpc-flow)
  (libraries tron-rpc-flow alcotest))
 
+(test
+ (name test_endpoint)
+ (modules test_endpoint)
+ (package tron-rpc-unix)
+ (libraries tron-rpc-unix alcotest fmt))
+
 ; Cross-oracle: where TronWeb and trident agree, ocaml-tron must match both;
 ; where they disagree, the disagreement is asserted rather than resolved by
 ; picking a favourite.

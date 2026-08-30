@@ -24,7 +24,8 @@ and Solo5 vsock, and two independent conformance oracles.
   a fee model, a tagged confirmation state, and a submission state machine in
   which expiry forces a rebuild rather than a replay.
 - **`tron-rpc-flow` / `tron-rpc-unix`** — HTTP/1.1 over any `Mirage_flow.S`;
-  the Unix path is the same functor applied to a file descriptor.
+  the Unix path is the same functor applied to a file descriptor or a verified
+  TLS flow. HTTPS uses the system trust store, hostname verification and SNI.
 - **`tron-rpc-grpc`** — the Wallet service over gRPC, decoding into the same
   types the HTTP client produces, and functorised over the same flow. Closes
   the G6 gate that HTTP and gRPC responses must agree.

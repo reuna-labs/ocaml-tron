@@ -57,18 +57,6 @@ let main () =
   let destination = require "TRON_DESTINATION" in
   let amount_sun = Int64.of_string (require "TRON_AMOUNT_SUN") in
 
-  let uri = Uri.of_string node in
-  let host = match Uri.host uri with Some h -> h | None -> node in
-  let port = match Uri.port uri with Some p -> p | None -> 80 in
-  if Uri.scheme uri = Some "https" then begin
-    (* tron-rpc-unix speaks plaintext. Connecting anyway would send a signed
-       transaction over an unencrypted link to a public endpoint. *)
-    prerr_endline
-      "TRON_NODE is https; this client is plaintext. Put a TLS-terminating \
-       proxy on the loopback, or point at a local node.";
-    exit 2
-  end;
-
   let sk =
     get' "TRON_SEED is not a valid private key"
       (Tron_crypto.private_key_of_bytes (unhex seed))
@@ -89,7 +77,7 @@ let main () =
   Printf.printf "amount      %s\n%!"
     (Format.asprintf "%a" Tron_types.Sun.pp amount);
 
-  let* client = Tron_rpc_unix.connect_tcp ~host_header:host host port in
+  let* client = Tron_rpc_unix.connect_uri node in
 
   (* Which chain is this? A Tron transaction carries no chain id; the only
      thing binding it to a chain is a reference block from this node. So the

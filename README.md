@@ -52,7 +52,7 @@ lib/transaction/    contracts, raw_data, signing, permissions, TRC-20, intent
 lib/rpc/            the /wallet/* catalogue, fees, confirmation, submission
 lib/rpc_flow/       HTTP/1.1 over any Mirage_flow.S -- including Solo5 vsock
 lib/rpc_grpc/       the Wallet service over gRPC, over the same flow signature
-lib/rpc_unix/       the HTTP functor, applied to a Unix file descriptor
+lib/rpc_unix/       the HTTP functor over Unix TCP or verified TLS
 lib/umbrella/       the offline surface, with no transport in its closure
 
 proto/              the pinned .proto tree
@@ -73,8 +73,9 @@ the `tron` umbrella are free of Unix, Lwt, clocks, randomness and sockets.
 `validation/solo5/unikernel.exe` checks it again by linking the closure with no
 transport at all. Both run in CI on every commit.
 
-`tron-rpc-flow`, `tron-rpc-grpc` and `tron-rpc-unix` own the socket. They are
-separate packages so that a consumer linking `tron` takes on none of them.
+`tron-rpc-flow`, `tron-rpc-grpc` and `tron-rpc-unix` own the socket. The Unix
+adapter selects verified TLS for HTTPS providers; it is separate so that a
+consumer linking `tron` takes on neither Unix nor TLS.
 
 `tron-rpc-flow` and `tron-rpc-grpc` are held to a second rule: they may have
 Lwt and a flow, but nothing that assumes a host operating system or a TCP

@@ -1,6 +1,6 @@
-; Tron_rpc_flow.Make applied to a Unix file descriptor, plus dialling. There is
-; no Unix-specific client code, so the Unix path and the unikernel path are the
-; same implementation with a different flow underneath.
+; Tron_rpc_flow.Make applied to a Unix descriptor or a verified TLS flow, plus
+; dialling. TLS stays in this Unix adapter so the pure and Mirage flow packages
+; retain their smaller, host-independent closure.
 ;
 ; Dialling lives here rather than one layer up on purpose: a unikernel's
 ; connection comes from a device it owns, and putting a getaddrinfo into
@@ -10,4 +10,18 @@
 (library
  (name tron_rpc_unix)
  (public_name tron-rpc-unix)
- (libraries tron-rpc tron-rpc-flow lwt lwt.unix unix mirage-flow-unix))
+ (libraries
+  tron-rpc
+  tron-rpc-flow
+  lwt
+  lwt.unix
+  unix
+  mirage-flow
+  mirage-flow-unix
+  tls
+  tls-lwt
+  x509
+  ca-certs
+  uri
+  cstruct
+  fmt))
