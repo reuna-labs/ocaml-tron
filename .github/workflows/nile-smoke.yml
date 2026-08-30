@@ -16,19 +16,10 @@ on:
 
 jobs:
   smoke:
-    runs-on: [self-hosted, Linux, X64, reuna-builder-x86]
+    runs-on: ubuntu-latest
     environment: nile
     steps:
       - uses: actions/checkout@v4
-
-      - name: Let git reach private Reuna repositories
-        env:
-          TOKEN: ${{ secrets.REUNA_CI_TOKEN }}
-        run: |
-          test -n "$TOKEN"
-          git config --global \
-            url."https://x-access-token:${TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
 
       - uses: ocaml/setup-ocaml@v3
         with:

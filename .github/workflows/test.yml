@@ -8,7 +8,7 @@ jobs:
   # The oracles first: if the fixtures have drifted, everything downstream is
   # being checked against the wrong answer.
   sdk-conformance:
-    runs-on: [self-hosted, Linux, X64, reuna-builder-x86]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +42,7 @@ jobs:
         run: git diff --exit-code conformance/fixtures/
 
   build:
-    runs-on: [self-hosted, Linux, X64, reuna-builder-x86]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -50,29 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Are the private prerequisites reachable?
-        id: creds
-        env:
-          TOKEN: ${{ secrets.REUNA_CI_TOKEN }}
-        run: |
-          if [ -n "$TOKEN" ]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "::notice title=Build skipped::REUNA_CI_TOKEN is not configured"
-          fi
-
-      - name: Let git reach private Reuna repositories
-        if: steps.creds.outputs.ok == 'true'
-        env:
-          TOKEN: ${{ secrets.REUNA_CI_TOKEN }}
-        run: |
-          git config --global \
-            url."https://x-access-token:${TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
-
       - uses: ocaml/setup-ocaml@v3
-        if: steps.creds.outputs.ok == 'true'
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
@@ -81,7 +59,6 @@ jobs:
       # hash-verified GMP in a runner-temp prefix keeps that from needing root
       # or a host package manager.
       - name: Build the GMP prerequisite without host privileges
-        if: steps.creds.outputs.ok == 'true'
         env:
           GMP_VERSION: "6.3.0"
           GMP_SHA256: a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
@@ -104,11 +81,9 @@ jobs:
           echo "LD_LIBRARY_PATH=$gmp_prefix/lib" >> "$GITHUB_ENV"
           echo "PKG_CONFIG_PATH=$gmp_prefix/lib/pkgconfig" >> "$GITHUB_ENV"
 
-      # The private dependency closure. These are the pins docs/switch.md
-      # documents; a clean public install is a G0 launch gate this repository
-      # does not yet clear, and pretending otherwise here would hide it.
+      # The tagged dependency closure. These are the immutable pins documented
+      # in docs/switch.md until the packages reach the public opam repository.
       - name: Pin the peer packages
-        if: steps.creds.outputs.ok == 'true'
         run: |
           opam pin add -yn web3-codec-basen.0.1.0~alpha1    https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1
           opam pin add -yn web3-codec-base58.0.1.0~alpha1   https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1
@@ -124,27 +99,22 @@ jobs:
           opam pin add -yn grpc.0.2.1~alpha1     https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1
           opam pin add -yn grpc-lwt.0.2.1~alpha1 https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1
 
-      - if: steps.creds.outputs.ok == 'true'
-        run: opam install -y --assume-depexts --deps-only --with-test .
+      - run: opam install -y --assume-depexts --deps-only --with-test .
 
-      - if: steps.creds.outputs.ok == 'true'
-        run: opam exec -- dune build @all
+      - run: opam exec -- dune build @all
 
-      - if: steps.creds.outputs.ok == 'true'
-        run: opam exec -- dune runtest
+      - run: opam exec -- dune runtest
 
       # Two ways of asking whether the offline packages are still free of I/O:
       # their declared dependencies, and whether the closure still links with
       # no transport at all.
       - name: The offline closure must stay free of I/O
-        if: steps.creds.outputs.ok == 'true'
         run: opam exec -- ./test/no_io_guard.sh
 
       # Bounded randomised runs, not a campaign. A real campaign needs an
       # AFL-instrumented compiler and its own switch; see docs/fuzzing.md.
       # Building them here is what keeps them from bit-rotting.
       - name: Fuzz targets
-        if: steps.creds.outputs.ok == 'true'
         run: |
           opam exec -- dune build fuzz/
           for t in _build/default/fuzz/*.exe; do
@@ -153,6 +123,5 @@ jobs:
           done
 
       - name: Formatting
-        if: steps.creds.outputs.ok == 'true'
         run: opam exec -- dune build @fmt
         continue-on-error: false
