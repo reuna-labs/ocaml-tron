@@ -26,6 +26,10 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
       - name: Regenerate the trident fixture
         run: |
           cd conformance/trident
@@ -106,18 +110,19 @@ jobs:
       - name: Pin the peer packages
         if: steps.creds.outputs.ok == 'true'
         run: |
-          opam pin add -yn web3-codec-basen    https://github.com/reuna-labs/ocaml-web3-codec.git
-          opam pin add -yn web3-codec-base58   https://github.com/reuna-labs/ocaml-web3-codec.git
-          opam pin add -yn web3-codec-protobuf https://github.com/reuna-labs/ocaml-web3-codec.git
-          opam pin add -yn evm-types           https://github.com/reuna-labs/ocaml-evm.git
-          opam pin add -yn evm-abi             https://github.com/reuna-labs/ocaml-evm.git
-          M=git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1
+          opam pin add -yn web3-codec-basen.0.1.0~alpha1    https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1
+          opam pin add -yn web3-codec-base58.0.1.0~alpha1   https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1
+          opam pin add -yn web3-codec-protobuf.0.1.0~alpha1 https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1
+          opam pin add -yn evm-types.0.2.0~alpha1 https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1
+          opam pin add -yn evm-abi.0.2.0~alpha1   https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1
+          M=git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1
           opam pin add -yn mirage-crypto.dev "$M"
           opam pin add -yn mirage-crypto-rng.dev "$M"
           opam pin add -yn mirage-crypto-ec.dev "$M"
+          opam pin add -yn mirage-crypto-blockchain-core.dev "$M"
           opam pin add -yn mirage-crypto-blockchain.dev "$M"
-          opam pin add -yn grpc     https://github.com/reuna-labs/ocaml-grpc.git#main
-          opam pin add -yn grpc-lwt https://github.com/reuna-labs/ocaml-grpc.git#main
+          opam pin add -yn grpc.0.2.1~alpha1     https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1
+          opam pin add -yn grpc-lwt.0.2.1~alpha1 https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1
 
       - if: steps.creds.outputs.ok == 'true'
         run: opam install -y --assume-depexts --deps-only --with-test .

@@ -54,19 +54,20 @@ dev-repo: "git+https://github.com/reuna-labs/ocaml-tron.git"
 # against released mirage-crypto, which has no Secp256k1 and no Keccak256.
 
 pin-depends: [
-  [ "mirage-crypto.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
-  [ "mirage-crypto-rng.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
-  [ "mirage-crypto-ec.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
-  [ "mirage-crypto-blockchain.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#release/web3-2.4.0-reuna1" ]
-  [ "digestif.dev" "git+https://github.com/reuna-labs/digestif.git#release/1.4.0-alpha1" ]
-  [ "web3-codec-basen.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
-  [ "web3-codec-base58.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
-  [ "web3-codec-protobuf.dev" "git+https://github.com/reuna-labs/ocaml-web3-codec.git" ]
-  [ "evm-types.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
-  [ "evm-abi.dev" "git+https://github.com/reuna-labs/ocaml-evm.git" ]
+  [ "mirage-crypto.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
+  [ "mirage-crypto-rng.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
+  [ "mirage-crypto-ec.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
+  [ "mirage-crypto-blockchain-core.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
+  [ "mirage-crypto-blockchain.dev" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
+  [ "digestif.1.4.0" "git+https://github.com/reuna-labs/digestif.git#v1.4.0-alpha1" ]
+  [ "web3-codec-basen.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
+  [ "web3-codec-base58.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
+  [ "web3-codec-protobuf.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
+  [ "evm-types.0.2.0~alpha1" "git+https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1" ]
+  [ "evm-abi.0.2.0~alpha1" "git+https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1" ]
   # grpc.0.2.0 caps h2 < 0.13.0, and the Mirage-capable h2 is 0.13.0. The fix
   # is staged in the private Reuna mirror pending an upstream release. Only
   # tron-rpc-grpc needs it.
-  [ "grpc.dev" "git+https://github.com/reuna-labs/ocaml-grpc.git#main" ]
-  [ "grpc-lwt.dev" "git+https://github.com/reuna-labs/ocaml-grpc.git#main" ]
+  [ "grpc.0.2.1~alpha1" "git+https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1" ]
+  [ "grpc-lwt.0.2.1~alpha1" "git+https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1" ]
 ]
