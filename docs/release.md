@@ -8,21 +8,23 @@ assurance"; this is that gate, itemised.
 
 | Item | State |
 | --- | --- |
-| Public dependency closure | **Blocked.** See below |
-| Clean-environment install | **Blocked** by the above |
+| Public source dependency closure | **Done.** All immutable tags are public |
+| Reuna opam overlay | **In validation.** No upstream acceptance required |
+| Clean-environment install | **In progress** against the overlay |
 | README, CHANGES, SECURITY | Done |
 | Threat model | Done — `docs/threat-model.md` |
 | Parser fuzzing | Targets exist and run in CI; **no sustained campaign** — `docs/fuzzing.md` |
 | Independent review | **Not started.** Scope is written, in the threat model |
-| Alpha release | Not made |
+| Alpha release | Public; alpha2 includes verified TLS and 97 tests |
 | Launch manifest | Not written |
 
-Nothing here is close to publishable, and the first item is why.
+This is publishable as explicitly unaudited alpha software once the overlay's
+clean install passes. It is not production-ready.
 
-## The blocker: a private dependency closure
+## Dependency strategy: no upstream gate
 
-G0 in the vault document is "no opam file points to a private repository", and
-this repository points at six:
+G0 in the vault document is "no opam file points to a private repository".
+Every source and tag in the closure is now public:
 
 | Package | Repository | Why |
 | --- | --- | --- |
@@ -30,33 +32,26 @@ this repository points at six:
 | `digestif` | `reuna-labs/digestif` | The 1.4.0 series; `KECCAK_256` alone is in released digestif, so this one may be droppable |
 | `web3-codec-{basen,base58,protobuf}` | `reuna-labs/ocaml-web3-codec` | Base58Check and the protobuf runtime |
 | `evm-types`, `evm-abi` | `reuna-labs/ocaml-evm` | The Contract ABI |
-| `grpc`, `grpc-lwt` | `dialohq/ocaml-grpc` at `b629b55f` | Public, but unreleased: `grpc.0.2.0` caps `h2 < 0.13.0` |
+| `grpc`, `grpc-lwt` | `reuna-labs/ocaml-grpc` `v0.2.1-alpha1` | Carries the h2 0.13 compatibility needed by `tron-rpc-grpc` |
 
-Five of the six are Reuna's own and are a decision rather than an obstacle:
-publish them, or vendor them with provenance. The sixth is upstream's to
-release, and until it does, `tron-rpc-grpc` cannot install from a clean
-environment even if everything else could.
-
-**This cannot be worked around from inside this repository**, which is why it
-is stated here rather than tracked as a task. `tron.opam.template` records the
-pins so that the gap is visible in the package metadata rather than only in
-prose.
+The first alpha train is published through
+`reuna-labs/opam-repository`. That repository imports the immutable archives,
+records SHA-256 and SHA-512 checksums, and removes development-only
+`pin-depends`. Upstream releases and central-opam acceptance can happen later
+as small independent changes; neither blocks Reuna's alpha publication.
 
 ## What a clean install would have to show
 
-Once the closure is public, on a machine with nothing but opam and a compiler:
+On a machine with nothing but opam and a compiler:
 
 ```sh
 opam switch create tron-clean 5.2.1
-opam install ./tron.opam
-opam exec --switch tron-clean -- dune runtest
+opam repository add --switch tron-clean reuna https://github.com/reuna-labs/opam-repository.git
+opam install --switch tron-clean tron-rpc-unix
 ```
 
-Currently this fails at the first step. Running it and recording the failure is
-more useful than not running it, so it belongs in the release job when there is
-one — a check that is expected to fail, and whose failure message names the
-missing packages, is a live record of the gap. A check that is simply absent
-becomes a gap nobody remembers.
+The release gate records this clean install separately from repository lint and
+the source tree's full 97-test matrix.
 
 ## Fuzzing
 
@@ -80,9 +75,9 @@ two things a reviewer should be handed alongside the code:
 
 ## Versioning
 
-`0.1.0~alpha1`, and it should stay an alpha until the closure is public and a
-review has happened. The version is set once in `dune-project` and flows into
-every generated `.opam`.
+`0.1.0~alpha2`, and it should stay an alpha until independent review and the
+sustained fuzz campaign have happened. The version is set once in
+`dune-project` and flows into every generated `.opam`.
 
 `docs/protocol-pin.md` pins the schema commit and node release separately from
 the library version, deliberately: a schema bump is a compatibility event that

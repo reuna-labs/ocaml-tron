@@ -4,10 +4,11 @@
 
 **Unaudited alpha. Do not use this to control assets of value.**
 
-Nothing here has been released, independently reviewed or fuzzed, and its
-dependency closure includes private repositories. The launch gates in
-`vault/Reuna/Attic/OCaml web3 state of the art status.md` place this at L6 —
-release and assurance — not started.
+A public alpha has been released and its source dependency closure is public.
+The 97-test suite and bounded parser fuzz targets run in CI, but there has been
+no sustained fuzz campaign or independent review. The launch gates in
+`vault/Reuna/Attic/OCaml web3 state of the art status.md` therefore place L6 —
+release and assurance — at partial, not complete.
 
 ## Reporting
 

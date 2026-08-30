@@ -1,6 +1,16 @@
 # Changes
 
-## 0.1.0~alpha1 (unreleased)
+## 0.1.0~alpha2 (2026-08-30)
+
+- Added verified HTTPS for public providers using the system CA store,
+  hostname verification and SNI, while keeping the pure/Mirage flow packages
+  free of Unix and TLS dependencies.
+- Added strict endpoint parsing and three endpoint regression tests; the full
+  public matrix now passes 97 tests on OCaml 4.14.2 and 5.2.1.
+- Made the Mirage Crypto fork pins semver-compatible with TLS's dependency
+  solver.
+
+## 0.1.0~alpha1 (2026-08-30)
 
 The G6 kickoff milestone: the offline path, a transport that reaches both Unix
 and Solo5 vsock, and two independent conformance oracles.

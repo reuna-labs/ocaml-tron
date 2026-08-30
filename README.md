@@ -7,7 +7,8 @@ java-tron HTTP client that runs over a Unix socket or a Solo5 vsock without
 changing implementation.
 
 > **Unaudited alpha software. Do not use it to control assets of value.**
-> No package here has been released, reviewed or fuzzed. See `SECURITY.md`.
+> A public alpha exists, but it has not been independently reviewed or through
+> a sustained fuzz campaign. See `SECURITY.md`.
 
 ## What it does
 
@@ -164,6 +165,6 @@ against L0–L6. Honestly, for this repository:
 | **L3** online client path | Typed reads, simulation, submission and a tagged confirmation state, over HTTP and gRPC alike, both reaching Unix and vsock. **No live-network evidence yet.** |
 | **L4** product policy | An intent derived from the signed bytes, with permission, fee limit and expiration always shown, and allow-list policies. Not yet bound into a signer transcript. |
 | **L5** conformance | Hermetic, two independent oracles, negative cases, and HTTP/gRPC parity. The scheduled testnet suite exists but has not been run. |
-| **L6** release and assurance | **Partial.** Threat model and review scope written, fuzz targets exist and run in CI. Unreleased, unaudited, no sustained fuzz campaign, and the dependency closure is still private -- see `docs/release.md`. |
+| **L6** release and assurance | **Partial.** Public alpha, threat model, review scope, bounded fuzz targets, and a fully public source closure. The Reuna opam overlay is being validated. Still unaudited and without a sustained fuzz campaign -- see `docs/release.md`. |
 
 Launch-blocked, and the blockers are named rather than implied.
