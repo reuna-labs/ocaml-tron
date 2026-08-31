@@ -10,6 +10,18 @@ changing implementation.
 > A public alpha exists, but it has not been independently reviewed or through
 > a sustained fuzz campaign. See `SECURITY.md`.
 
+## Install
+
+```sh
+opam repository add reuna https://github.com/reuna-labs/opam-repository.git
+opam update
+opam install tron-rpc-unix.0.1.0~alpha2
+```
+
+This installs the verified-HTTPS Unix client and its pure transaction, crypto,
+protobuf and flow packages from the public `v0.1.0-alpha2` archive. No
+development pins are required.
+
 ## What it does
 
 - **Addresses.** The 21-byte binary form is the type; Base58Check, hex and the
@@ -165,6 +177,6 @@ against L0–L6. Honestly, for this repository:
 | **L3** online client path | Typed reads, simulation, submission and a tagged confirmation state, over HTTP and gRPC alike, both reaching Unix and vsock. **No live-network evidence yet.** |
 | **L4** product policy | An intent derived from the signed bytes, with permission, fee limit and expiration always shown, and allow-list policies. Not yet bound into a signer transcript. |
 | **L5** conformance | Hermetic, two independent oracles, negative cases, and HTTP/gRPC parity. The scheduled testnet suite exists but has not been run. |
-| **L6** release and assurance | **Partial.** Public alpha, threat model, review scope, bounded fuzz targets, and a fully public source closure. The Reuna opam overlay is being validated. Still unaudited and without a sustained fuzz campaign -- see `docs/release.md`. |
+| **L6** release and assurance | **Partial.** Public alpha, threat model, review scope, bounded fuzz targets, and a fully public source closure. The public Reuna opam overlay installs cleanly on OCaml 4.14.2 and 5.2.1. Still unaudited and without a sustained fuzz campaign -- see `docs/release.md`. |
 
 Launch-blocked, and the blockers are named rather than implied.
