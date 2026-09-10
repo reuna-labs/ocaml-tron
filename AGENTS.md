@@ -127,7 +127,7 @@ naming its source; when a third copy appears, extract it instead.
 - `docs/switch.md` — build-switch discipline
 - `docs/unikernel.md` — the Solo5 validation log
 - `../vault/Reuna/SDD/` — component design documents
-- `../vault/Reuna/Platryx HLD.md` — how the components fit together
+- `../vault/Reuna/Reuna HLD.md` — how the components fit together
 - `../vault/Reuna/Attic/OCaml web3 state of the art status.md` — the launch
   gates (L0-L6) this repository is measured against, and the G6 scope
 
