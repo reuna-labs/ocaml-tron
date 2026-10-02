@@ -5,9 +5,9 @@
 # VALIDATION ONLY -- not part of the release. See ../README.md.
 #
 # The Cardano equivalent (ocaml-cardano/validation/solo5/build.sh) is the model.
-# What is different here is GMP: Base58, secp256k1 public-key recovery and the
-# ABI's uint256 all need a bignum, so a Tron guest cannot avoid zarith the way
-# a Cardano one does. Both are cross-built here, from source, into the
+# What is different here is GMP: Base58 and the ABI's uint256 need bignums,
+# so a Tron guest still uses zarith; native recovery is bignum-free.
+# GMP and Zarith are cross-built here, from source, into the
 # workspace. Nothing is pinned, nothing is installed, and the shared switch is
 # not modified.
 #
@@ -19,6 +19,7 @@ S="$P/.opam-switch/sources"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 W="${W:-$(mktemp -d)}"
+MIRAGE_CRYPTO_SOURCE="${MIRAGE_CRYPTO_SOURCE:-$REPO/../../ports/ocaml/mirage-crypto}"
 GMP_VERSION="${GMP_VERSION:-6.3.0}"
 GMP_SHA256=a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
 CACHE="${GMP_CACHE:-$HOME/.cache/ocaml-tron}"
@@ -124,8 +125,11 @@ done
 # it the host logs.cmxa is picked up and collides with the Solo5 stdlib.
 cp -R "$REPO/../ocaml-mpc/mirage-smoke/duniverse/logs" "$W/duniverse/logs"
 cp -R "$S/digestif"      "$W/duniverse/digestif"
-cp -R "$S/mirage-crypto" "$W/duniverse/mirage-crypto"
-cp -R "$REPO/../../ports/ocaml/mirage-crypto/blockchain-core" "$W/duniverse/mirage-crypto/"
+# The selected native signer must come from the coordinated source checkout.
+mkdir -p "$W/duniverse/mirage-crypto"
+for d in src rng secp256k1 config; do
+  cp -R "$MIRAGE_CRYPTO_SOURCE/$d" "$W/duniverse/mirage-crypto/$d"
+done
 cp -R "$REPO/../../ports/ocaml/mirage-crypto/blockchain"      "$W/duniverse/mirage-crypto/"
 
 # The web3 codec packages and the EVM ABI, from their own repositories.
@@ -165,7 +169,7 @@ printf '(library (name ptime) (public_name ptime) (modules ptime))\n' \
   > "$W/duniverse/ptime/src/dune"
 printf '(dirs src)\n'                 > "$W/duniverse/logs/dune"
 printf '(dirs lib)\n'                 > "$W/duniverse/yojson/dune"
-printf '(dirs src ec rng blockchain-core blockchain config)\n' > "$W/duniverse/mirage-crypto/dune"
+printf '(dirs src rng secp256k1 config)\n' > "$W/duniverse/mirage-crypto/dune"
 
 # rng carries sub-packages this guest neither needs nor can build.
 rm -rf "$W"/duniverse/mirage-crypto/rng/mirage "$W"/duniverse/mirage-crypto/rng/miou \

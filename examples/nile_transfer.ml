@@ -1,3 +1,6 @@
+(* Hosted entry point: seed context blinding from operating-system entropy. *)
+let () = Mirage_crypto_rng_unix.use_default ()
+
 (* A guarded TRX transfer on the Nile testnet, and the evidence it produces.
 
    Everything is refused rather than defaulted: no node URL, no expected

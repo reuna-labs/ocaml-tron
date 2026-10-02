@@ -13,7 +13,7 @@
 
 (executable
  (name unikernel)
- (libraries
+ (libraries mirage-crypto-rng
   tron-types
   tron-crypto
   tron-proto

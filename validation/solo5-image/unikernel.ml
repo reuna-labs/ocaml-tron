@@ -1,3 +1,8 @@
+(* Validation only: fixed entropy for a published test key. Deployments must
+   initialize Mirage RNG from their trusted platform entropy source. *)
+let () = Mirage_crypto_rng.set_default_generator
+    (Mirage_crypto_rng.create ~seed:(String.make 48 '\042') (module Mirage_crypto_rng.Fortuna))
+
 (* The offline Tron path, running inside a Solo5 guest.
 
    This is the claim validation/solo5/ makes structurally, made concretely: the
@@ -5,8 +10,8 @@
    operating system underneath it.
 
    What it proves that the structural link proof does not: that zarith and GMP
-   cross-compile and run here. Base58 needs a bignum, and so does secp256k1
-   public-key recovery, so a Tron guest cannot avoid GMP the way ocaml-cardano
+   cross-compile and run here. Base58 and the ABI need bignums; native secp256k1 recovery does not.
+   A Tron guest still uses GMP the way ocaml-cardano
    does. See ../../docs/unikernel.md. *)
 
 external console_write : string -> unit = "tron_console_write"

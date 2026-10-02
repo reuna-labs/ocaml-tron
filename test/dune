@@ -2,7 +2,7 @@
  (name test_types)
  (modules test_types)
  (package tron-types)
- (libraries tron-types alcotest qcheck-core qcheck-alcotest))
+ (libraries mirage-crypto-rng tron-types alcotest qcheck-core qcheck-alcotest))
 
 ; The crypto tests read the conformance fixtures, so dune has to copy them into
 ; the build tree. They are data_only_dirs at the root, which is what stops dune
@@ -14,7 +14,7 @@
  (package tron-crypto)
  (deps
   (glob_files ../conformance/fixtures/*.json))
- (libraries tron-types tron-crypto alcotest))
+ (libraries mirage-crypto-rng tron-types tron-crypto alcotest))
 
 (test
  (name test_transaction)
@@ -23,6 +23,7 @@
  (deps
   (glob_files ../conformance/fixtures/*.json))
  (libraries
+  mirage-crypto-rng
   tron-types
   tron-crypto
   tron-transaction
@@ -40,6 +41,7 @@
  (deps
   (glob_files ../conformance/fixtures/*.json))
  (libraries
+  mirage-crypto-rng
   tron-types
   tron-transaction
   tron-proto
@@ -55,19 +57,19 @@
  (name test_rpc)
  (modules test_rpc)
  (package tron-rpc)
- (libraries tron-types tron-transaction tron-rpc yojson alcotest))
+ (libraries mirage-crypto-rng tron-types tron-transaction tron-rpc yojson alcotest))
 
 (test
  (name test_http)
  (modules test_http)
  (package tron-rpc-flow)
- (libraries tron-rpc-flow alcotest))
+ (libraries mirage-crypto-rng tron-rpc-flow alcotest))
 
 (test
  (name test_endpoint)
  (modules test_endpoint)
  (package tron-rpc-unix)
- (libraries tron-rpc-unix alcotest fmt))
+ (libraries mirage-crypto-rng tron-rpc-unix alcotest fmt))
 
 ; Cross-oracle: where TronWeb and trident agree, ocaml-tron must match both;
 ; where they disagree, the disagreement is asserted rather than resolved by
@@ -79,7 +81,7 @@
  (package tron)
  (deps
   (glob_files ../conformance/fixtures/*.json))
- (libraries tron-types tron-crypto tron-transaction alcotest))
+ (libraries mirage-crypto-rng tron-types tron-crypto tron-transaction alcotest))
 
 ; The G6 gate: HTTP and gRPC must decode to the same values. No socket -- each
 ; transport's decoder is fed a body the node would have sent, and the results
@@ -90,6 +92,7 @@
  (modules test_grpc_parity)
  (package tron-rpc-grpc)
  (libraries
+  mirage-crypto-rng
   tron-types
   tron-rpc
   tron-rpc-grpc

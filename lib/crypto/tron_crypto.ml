@@ -1,8 +1,5 @@
-(* Hardened: fiat-crypto, constant time. The only backend a private key is
-   handed to. Reference: plain double-and-add, documented NOT CONSTANT TIME in
-   its own .mli, used only on public data. See dune. *)
-module Hardened = Mirage_crypto_ec.P256k1.Dsa
-module Reference = Mirage_crypto_blockchain.Secp256k1
+module Hardened = Mirage_crypto_secp256k1
+module Reference = Mirage_crypto_secp256k1
 
 type private_key = Hardened.priv
 type public_key = Hardened.pub
@@ -46,7 +43,7 @@ let public_key_of_bytes b =
 let public_key_to_bytes ?(compress = false) k =
   Hardened.pub_to_octets ~compress k
 
-let public_key_of_private_key = Hardened.pub_of_priv
+let public_key_of_private_key key = Hardened.pub_of_priv key
 
 let address_of_public_key k =
   (* The uncompressed SEC1 encoding is 0x04 ‖ x ‖ y. Tron hashes x ‖ y, so the
@@ -62,19 +59,8 @@ let address_of_private_key k =
 
 (* Signing *)
 
-let curve_order = Reference.n
-let half_curve_order = Z.div Reference.n (Z.of_int 2)
-
-let z_of_be s =
-  Z.of_bits
-    (String.init (String.length s) (fun i -> s.[String.length s - 1 - i]))
-
-let be_of_z z =
-  let bits = Z.to_bits z in
-  let n = String.length bits in
-  String.init scalar_length (fun i ->
-      let j = scalar_length - 1 - i in
-      if j < n then bits.[j] else '\x00')
+let half_curve_order =
+  "\x7f\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x5d\x57\x6e\x73\x57\xa4\x50\x1d\xdf\xe9\x2f\x46\x68\x1b\x20\xa0"
 
 let reference_signature { r; s; _ } =
   match Reference.signature_of_octets (r ^ s) with
@@ -92,42 +78,21 @@ let recover ~msg sg =
         | Error _ -> Error `Recovery_failed
         | exception _ -> Error `Recovery_failed
         | Ok point ->
-            public_key_of_bytes
-              (Reference.point_to_octets ~compress:false point))
-
-let public_key_equal a b =
-  String.equal (public_key_to_bytes a) (public_key_to_bytes b)
+            Ok point)
 
 let sign_digest key digest =
   if String.length digest <> digest_length then Error `Invalid_digest
   else
-    (* No ~k: the hardened backend derives it deterministically per RFC 6979. *)
-    let r_raw, s_raw = Hardened.sign ~key digest in
-    let s0 = z_of_be s_raw in
-    (* Low-S normalisation. java-tron's ECKey rejects the high-S form, and a
-       signature that differs only in this is a different 65 bytes over the
-       same transaction -- malleability. *)
-    let s = if Z.gt s0 half_curve_order then Z.sub curve_order s0 else s0 in
-    let candidate = { r = r_raw; s = be_of_z s; recid = 0 } in
-    let expected = public_key_of_private_key key in
-    (* The constant-time backend does not expose the ephemeral nonce, so the
-       recovery id is found by trying both and keeping the one that recovers to
-       the key that signed. Only 0 and 1 are tried: 2 and 3 require the
-       ephemeral point's x-coordinate to have exceeded the curve order, which
-       has probability around 2^-128. *)
-    let rec find = function
-      | [] -> Error `Recovery_failed
-      | recid :: rest -> (
-          let sg = { candidate with recid } in
-          match recover ~msg:digest sg with
-          | Ok recovered when public_key_equal recovered expected -> Ok sg
-          | _ -> find rest)
-    in
-    find [ 0; 1 ]
+    let signature, recid = Hardened.sign_recoverable ~key digest in
+    if recid > 1 then Error `Recovery_failed
+    else
+      let bytes = Hardened.signature_to_octets signature in
+      Ok { r = String.sub bytes 0 32; s = String.sub bytes 32 32; recid }
 
 let verify key digest { r; s; _ } =
-  String.length digest = digest_length
-  && try Hardened.verify ~key (r, s) digest with _ -> false
+  match Hardened.signature_of_octets (r ^ s) with
+  | Error _ -> false
+  | Ok signature -> Hardened.verify ~key signature digest
 
 let address_of_signature ~msg sg =
   Result.map address_of_public_key (recover ~msg sg)
@@ -168,7 +133,7 @@ let signature_of_bytes b =
       | Error e -> Error e
       | Ok _ -> Ok sg
 
-let is_canonical { s; _ } = Z.leq (z_of_be s) half_curve_order
+let is_canonical { s; _ } = String.compare s half_curve_order <= 0
 let v_byte { recid; _ } = recid
 let r { r; _ } = r
 let s { s; _ } = s

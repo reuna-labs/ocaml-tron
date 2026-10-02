@@ -52,8 +52,21 @@ Deliberately, and each is a decision rather than an omission:
   decode as opaque, can be displayed, and can never satisfy a policy.
 - **Deciding whether a signer is authorised.** Permissions live on chain.
   `Permission` makes one legible; fetching it is the caller's job.
-- **Reading a clock, or drawing randomness.** Neither happens anywhere in
-  `lib/`. Expiration is an input; nonces are deterministic.
+- **Reading a clock.** Expiration is an input. ECDSA nonces are deterministic;
+  the native signer uses Mirage RNG for context blinding.
+
+## Signer RNG initialization
+
+Initialize Mirage RNG from the deployment's trusted entropy source before
+secp256k1 public-key derivation or signing. The native libsecp256k1 backend
+uses fresh randomness to blind each secret-key context. RFC 6979 signature
+bytes remain deterministic; context blinding does not change them. Missing
+or unseeded generators fail closed through Mirage RNG exceptions.
+
+Hosted entry points may initialize `Mirage_crypto_rng_unix`; Mirage/Solo5
+applications must supply their platform RNG integration. The crypto libraries
+depend on `mirage-crypto-rng`, without requiring its Unix adapter. Fixed test
+seeds are only for reproducible tests and must not be used in deployments.
 
 ## Layout
 
@@ -81,7 +94,7 @@ docs/               the specification pin, the build switch, the unikernel state
 ## Package boundaries
 
 `tron-types`, `tron-crypto`, `tron-proto`, `tron-transaction`, `tron-rpc` and
-the `tron` umbrella are free of Unix, Lwt, clocks, randomness and sockets.
+the `tron` umbrella are free of Unix, Lwt, clocks and sockets. Signers require initialized Mirage RNG.
 `test/no_io_guard.sh` checks that from the declared dependencies, and
 `validation/solo5/unikernel.exe` checks it again by linking the closure with no
 transport at all. Both run in CI on every commit.

@@ -11,14 +11,14 @@
 ; size". It looks like a linker-script bug and is a flag-plumbing one.
 ;
 ; -lgmp is the Tron-specific part, and the reason this directory exists: Base58,
-; secp256k1 recovery and the ABI's uint256 all need a bignum, so unlike
+; the ABI's uint256 need a bignum, so unlike
 ; ocaml-cardano this guest cannot avoid GMP. The archive is cross-built by
 ; build.sh; see ../../docs/unikernel.md.
 
 (executable
  (name unikernel)
  (modules unikernel solo5_exit)
- (libraries tron-types tron-crypto tron-proto tron-transaction zarith)
+ (libraries mirage-crypto-rng tron-types tron-crypto tron-proto tron-transaction zarith)
  (enabled_if
   (= %{context_name} "default.solo5"))
  (foreign_stubs

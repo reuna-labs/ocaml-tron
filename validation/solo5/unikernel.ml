@@ -1,3 +1,8 @@
+(* Validation only: fixed entropy for a published test key. Deployments must
+   initialize Mirage RNG from their trusted platform entropy source. *)
+let () = Mirage_crypto_rng.set_default_generator
+    (Mirage_crypto_rng.create ~seed:(String.make 48 '\042') (module Mirage_crypto_rng.Fortuna))
+
 (* Exercises the offline path end to end, in one executable that links no
    transport: derive an address, build a transaction, hash it, sign it, recover
    the signer, and derive the intent back out of the bytes.

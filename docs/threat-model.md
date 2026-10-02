@@ -100,23 +100,13 @@ signed; deciding is the caller's.
 
 ### An attacker observing timing
 
-- Secret-key operations go through `mirage-crypto-ec`'s fiat-crypto
-  `P256k1.Dsa`, which is constant time.
-- Recovery goes through `mirage-crypto-blockchain`'s reference implementation,
-  documented **not** constant time, and is given only a signature, a digest and
-  a recovery id — all about to be broadcast.
-- `Address.equal` and `Tx_id.equal` are `String.equal`, which is not constant
-  time. They compare public values.
+- Secret-key operations and recoverable signing go through the selected
+  Bitcoin Core libsecp256k1 backend. Each secret-key context is blinded using
+  an initialized Mirage RNG; RFC6979 signature bytes remain deterministic.
+- Recovery uses the same native backend on public signature and digest values.
+- `Address.equal` and `Tx_id.equal` compare public values with `String.equal`.
 
-**The split is load-bearing and easy to undo.** The reference backend also
-offers `sign` and `sign_recoverable`; calling either would put a secret key
-through non-constant-time scalar multiplication. `lib/crypto/dune` says so.
-
-**A known improvement:** `Mirage_crypto_ec.P256k1.Primitive` exposes
-constant-time point arithmetic sufficient to do recovery without the reference
-backend. Taking that route would remove the non-constant-time code from the
-closure entirely, and remove one of the three reasons this library needs a
-bignum. Not done; recorded in `docs/unikernel.md`.
+The whole OCaml SDK has not independently been verified constant-time.
 
 ### An attacker with the machine
 
@@ -147,10 +137,10 @@ wipe would be theatre; the enclave's memory lifetime is the real control.
   the node                               <- untrusted
 ```
 
-Everything above the process boundary is deterministic and free of clocks,
-randomness and I/O, checked by `test/no_io_guard.sh` on every build. That is
-what makes the layer auditable in isolation: it cannot reach out, so its
-behaviour is a function of its inputs.
+The signed bytes are deterministic. The offline libraries have no clock or
+transport dependency, checked by `test/no_io_guard.sh`. Signing contexts draw
+blinding randomness from the caller-initialized Mirage RNG; the platform is
+responsible for supplying trusted entropy.
 
 ## Assumptions
 

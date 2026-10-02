@@ -43,16 +43,10 @@
 
     {2 Timing}
 
-    Signing goes through [mirage-crypto-ec]'s fiat-crypto backend and is
-    constant time. Recovery goes through [mirage-crypto-blockchain]'s reference
-    backend, which is documented as {b not} constant time and is given only
-    public data: a signature, a digest, and a recovery id, all of which are
-    about to be broadcast. No private key reaches it.
-
-    {2 Randomness}
-
-    None is drawn. Nonces are RFC 6979 deterministic, which is what keeps
-    [mirage-crypto-rng] initialisation off a unikernel's critical path. *)
+    Signing and recovery use the native libsecp256k1 backend. Signatures use
+    RFC6979 deterministic nonces and low-S normalization. Public derivation
+    and signing require an initialized Mirage RNG for independent context
+    blinding; randomness does not change signature bytes. *)
 
 type private_key
 type public_key

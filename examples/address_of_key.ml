@@ -1,3 +1,6 @@
+(* Hosted entry point: seed context blinding from operating-system entropy. *)
+let () = Mirage_crypto_rng_unix.use_default ()
+
 let fail message =
   prerr_endline ("tron-address-of-key: " ^ message);
   exit 2

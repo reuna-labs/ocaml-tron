@@ -154,20 +154,12 @@ JSON.
   `sptmac` is a Reuna fork target that exists nowhere public. This is a
   by-hand check, and its output belongs in this file when it is re-run.
 
-## A way to make this smaller
+## Native signing migration (2026-10-02)
 
-`Mirage_crypto_ec.P256k1.Primitive` exposes constant-time point arithmetic --
-`point_of_octets` decompresses from a compressed SEC1 encoding, `scalar_inv`,
-`scalar_mult`, `scalar_mult_base` and `point_add` are all there. That is enough
-to recover a public key without `mirage-crypto-blockchain`, which would remove
-both a non-constant-time backend from the signing path and one of the three
-reasons this library needs a bignum.
-
-Base58 over a 25-byte payload is the second: it needs repeated division of a
-200-bit number, which fits in four 64-bit limbs and does not need arbitrary
-precision.
-
-That would leave `evm-abi`'s `uint256`. Removing all three would let a Tron
-guest drop GMP entirely and build as simply as a Cardano one. None of it is
-required now that GMP works, and the first is worth doing on its own merits --
-see `docs/threat-model.md`.
+Signing and recovery now use the selected native libsecp256k1 backend.
+Base58 and ABI uint256 values still use Zarith/GMP. The source-selection
+script takes `MIRAGE_CRYPTO_SOURCE`, defaulting to the coordinated crypto
+checkout, and includes only src, rng, secp256k1 and config from that tree.
+The guest initializes a deterministic test-only RNG for its published test
+key. Deployments must use trusted platform entropy for context blinding.
+The earlier boot measurements above predate this migration.

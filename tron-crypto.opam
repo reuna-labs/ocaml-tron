@@ -2,16 +2,8 @@
 opam-version: "2.0"
 version: "0.1.0~alpha2"
 synopsis: "Secp256k1 recoverable signing for Tron"
-description: """
-Signs the 32-byte SHA-256 digest of a serialized raw_data and produces Tron's
-65-byte r-s-v wire signature, where v is the raw recovery id.
-
-Secret-dependent curve operations use mirage-crypto-ec's fiat-crypto P256k1
-backend. Recovery, which runs on public data, uses mirage-crypto-blockchain's
-reference implementation -- which is documented NOT CONSTANT TIME and must
-never be handed a secret key. This split follows ocaml-evm's evm-crypto.
-
-No RNG: nonces are RFC 6979 deterministic."""
+description:
+  "Native libsecp256k1 signing with low-S output. Nonces are RFC6979 deterministic; public derivation and signing require an initialized Mirage RNG for independent context blinding. No system crypto or bignum backend."
 maintainer: ["Gil Bahat <bahat.gil@gmail.com>"]
 authors: ["Gil Bahat <bahat.gil@gmail.com>"]
 license: "ISC"
@@ -22,9 +14,7 @@ depends: [
   "dune" {>= "3.6" & >= "3.6"}
   "tron-types" {= version}
   "digestif" {>= "1.2.0"}
-  "mirage-crypto-ec" {>= "2.1.0"}
-  "mirage-crypto-blockchain"
-  "zarith" {>= "1.12"}
+  "mirage-crypto-secp256k1"
   "alcotest" {with-test}
   "odoc" {with-doc}
 ]
@@ -43,3 +33,12 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/reuna-labs/ocaml-tron.git"
+# Development pins for the coordinated native crypto source.
+# Pins select versions; optional packages are installed only when required.
+pin-depends: [
+  [ "mirage-crypto.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-rng.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-secp256k1.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-pk.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "digestif.1.4.0" "git+https://github.com/reuna-labs/digestif.git#770f9c355bd5fd60ebf63027b66a51920906519f" ]
+]

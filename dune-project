@@ -32,7 +32,7 @@
 ; builds must therefore supply GMP -- see docs/unikernel.md.
 ;
 ; What is enforced instead is the I/O boundary: every package below except
-; tron-rpc-flow and tron-rpc-unix is free of unix, lwt, clock, RNG and
+; tron-rpc-flow and tron-rpc-unix is free of unix, lwt, clock and
 ; transport. test/no_io_guard.sh checks this from the declared dependencies,
 ; not by grepping sources.
 
@@ -62,16 +62,13 @@
 (package
  (name tron-crypto)
  (synopsis "Secp256k1 recoverable signing for Tron")
- (description
-  "Signs the 32-byte SHA-256 digest of a serialized raw_data and produces Tron's\n65-byte r-s-v wire signature, where v is the raw recovery id.\n\nSecret-dependent curve operations use mirage-crypto-ec's fiat-crypto P256k1\nbackend. Recovery, which runs on public data, uses mirage-crypto-blockchain's\nreference implementation -- which is documented NOT CONSTANT TIME and must\nnever be handed a secret key. This split follows ocaml-evm's evm-crypto.\n\nNo RNG: nonces are RFC 6979 deterministic.")
+ (description "Native libsecp256k1 signing with low-S output. Nonces are RFC6979 deterministic; public derivation and signing require an initialized Mirage RNG for independent context blinding. No system crypto or bignum backend.")
  (depends
   (ocaml (>= 4.14))
   (dune (>= 3.6))
   (tron-types (= :version))
   (digestif (>= 1.2.0))
-  (mirage-crypto-ec (>= 2.1.0))
-  mirage-crypto-blockchain
-  (zarith (>= 1.12))
+  mirage-crypto-secp256k1
   (alcotest :with-test)))
 
 (package
@@ -152,6 +149,7 @@
  (description
   "Tron_rpc_flow.Make over a Unix descriptor or a verified TLS flow. HTTPS\nuses the system CA store, hostname verification and SNI; the pure and Mirage\nflow packages remain free of Unix/TLS dependencies.")
  (depends
+  mirage-crypto-rng
   (ocaml (>= 4.14))
   (dune (>= 3.6))
   (tron-rpc (= :version))

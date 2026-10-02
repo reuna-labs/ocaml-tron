@@ -41,33 +41,19 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/reuna-labs/ocaml-tron.git"
-# DEVELOPMENT ONLY -- delete this file before submitting to opam-repository.
-#
-# Every one of these is a Reuna fork or an unreleased sibling, so a standalone
-# `opam install --deps-only .` cannot solve without them. That they are needed
-# at all is the G0 launch gate -- "no opam file points to a private repository"
-# -- which this repository does not clear. Recording it here rather than
-# omitting it keeps the gap visible.
-#
-# dune regenerates tron.opam from dune-project and silently drops whatever
-# follows. Re-append this block after any regeneration, or the package solves
-# against released mirage-crypto, which has no Secp256k1 and no Keccak256.
-
+# Development pins for the coordinated native crypto source.
+# Pins select versions; optional packages are installed only when required.
 pin-depends: [
-  [ "mirage-crypto.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
-  [ "mirage-crypto-rng.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
-  [ "mirage-crypto-ec.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
-  [ "mirage-crypto-blockchain-core.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
-  [ "mirage-crypto-blockchain.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#v2.4.0-reuna1" ]
-  [ "digestif.1.4.0" "git+https://github.com/reuna-labs/digestif.git#v1.4.0-alpha1" ]
+  [ "mirage-crypto.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-rng.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-secp256k1.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "mirage-crypto-pk.2.4.0" "git+https://github.com/reuna-labs/mirage-crypto.git#edeae749daa6f8eafb73446e68e654d00794e898" ]
+  [ "digestif.1.4.0" "git+https://github.com/reuna-labs/digestif.git#770f9c355bd5fd60ebf63027b66a51920906519f" ]
   [ "web3-codec-basen.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
   [ "web3-codec-base58.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
   [ "web3-codec-protobuf.0.1.0~alpha1" "git+https://github.com/reuna-labs/ocaml-web3-codec.git#v0.1.0-alpha1" ]
   [ "evm-types.0.2.0~alpha1" "git+https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1" ]
   [ "evm-abi.0.2.0~alpha1" "git+https://github.com/reuna-labs/ocaml-evm.git#v0.2.0-alpha1" ]
-  # grpc.0.2.0 caps h2 < 0.13.0, and the Mirage-capable h2 is 0.13.0. The fix
-  # is staged in the private Reuna mirror pending an upstream release. Only
-  # tron-rpc-grpc needs it.
   [ "grpc.0.2.1~alpha1" "git+https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1" ]
   [ "grpc-lwt.0.2.1~alpha1" "git+https://github.com/reuna-labs/ocaml-grpc.git#v0.2.1-alpha1" ]
 ]

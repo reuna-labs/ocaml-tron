@@ -12,6 +12,7 @@ license: "ISC"
 homepage: "https://github.com/reuna-labs/ocaml-tron"
 bug-reports: "https://github.com/reuna-labs/ocaml-tron/issues"
 depends: [
+  "mirage-crypto-rng"
   "ocaml" {>= "4.14"}
   "dune" {>= "3.6" & >= "3.6"}
   "tron-rpc" {= version}

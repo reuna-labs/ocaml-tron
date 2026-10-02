@@ -31,17 +31,14 @@ vendoring artefact: **any project decoding untrusted protobuf with
 
 ## Known limitations
 
-### Not constant time
+### Native signing and context blinding
 
-`mirage-crypto-blockchain`'s `Secp256k1` carries a "NOT CONSTANT TIME" banner in
-its own interface. `tron-crypto` therefore hands it only public data — a
-signature, a digest and a recovery id, all about to be broadcast — and routes
-every operation on a private key through `mirage-crypto-ec`'s fiat-crypto
-`P256k1.Dsa`, which is constant time.
-
-That split is load-bearing and easy to undo by accident: the reference backend
-also offers `sign` and `sign_recoverable`, and either would put a secret key
-through non-constant-time scalar multiplication. `lib/crypto/dune` says so.
+`tron-crypto` delegates secret-key operations, low-S signing and public-key
+recovery to `Mirage_crypto_secp256k1`, the minimal Bitcoin Core libsecp256k1
+binding. Public-key derivation and signing require an initialized Mirage RNG
+for fresh context blinding. RFC 6979 signature bytes remain deterministic.
+A missing or unseeded RNG fails closed. The whole OCaml SDK has not been
+independently audited for constant-time behavior.
 
 ### The signer's authority is not checked here
 

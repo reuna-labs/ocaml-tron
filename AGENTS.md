@@ -9,16 +9,19 @@ run as a MirageOS/Solo5 unikernel, not only as a Unix library.
 ## Invariants
 
 Signed-data libraries are deterministic and free of Unix, Lwt, environment,
-clock, RNG and transport dependencies. `test/no_io_guard.sh` enforces this by
+clock and transport dependencies. Native signer-context blinding requires
+an initialized Mirage RNG; signature bytes remain deterministic. `test/no_io_guard.sh` enforces this by
 inspecting declared dependencies, not by grepping sources.
 
 **Nothing here reads a clock.** `expiration` and `timestamp` in `raw_data` are
 wall-clock milliseconds, and a signer that could fetch the current time could be
 walked into widening its own validity window. The current time is an input.
 
-**Nothing here draws randomness.** ECDSA nonces are RFC 6979 deterministic, so
-no generator is needed and `mirage-crypto-rng` initialisation stays off a
-unikernel's critical path.
+**Initialize Mirage RNG before secret-key operations.** ECDSA nonces remain
+RFC 6979 deterministic. Native libsecp256k1 contexts use fresh randomness for
+blinding during signing and public-key derivation. This requirement was
+explicitly approved for the backend migration; use deployment entropy, never
+the fixed seeds used in tests.
 
 **The node never builds a transaction this library signs.**
 `/wallet/createtransaction` exists and is used only as a differential oracle in
@@ -57,20 +60,14 @@ traceable to a line there.
 ### zarith and GMP are unavoidable here, and they work
 
 Unlike `ocaml-cardano`, this closure carries zarith and therefore GMP. It
-enters three times and none is removable today: `web3-codec-basen` backs
-Base58, `mirage-crypto-blockchain`'s `Secp256k1` is the bignum behind
-public-key recovery, and `evm-abi` has `uint256`.
+enters through `web3-codec-basen` for Base58 and `evm-abi` for `uint256`.
+Signing and public-key recovery use native libsecp256k1 without bignums.
 
 GMP cross-compiles against `ocaml-solo5` and the guest boots --
 `validation/solo5-image/build.sh`, recorded in `docs/unikernel.md`. Four
 obstacles had to be cleared and none of them was a GMP bug; the one worth
 knowing is that the allocator is namespaced on purpose, and the fix is to use
 the platform's own `<_solo5/overrides.h>` rather than to write a shim.
-
-`Mirage_crypto_ec.P256k1.Primitive` exposes enough constant-time point
-arithmetic to do recovery without the reference backend, which would remove
-both a non-constant-time backend from the signing path and one of the three
-bignum users. Worth doing on its own merits; no longer a blocker for anything.
 
 ## Build switch
 
@@ -104,11 +101,11 @@ at `../`. The full layout:
 | Repository | Path | Why |
 | --- | --- | --- |
 | `ocaml-web3-codec` | `../ocaml-web3-codec` | `web3-codec-protobuf` (the vendored ocaml-protoc-plugin runtime and `tools/gen-protobuf.sh`), `web3-codec-base58` (Base58Check addresses) |
-| `ocaml-evm` | `../ocaml-evm` | `evm-abi` — the Contract ABI, reused unchanged for TVM calls. `lib/crypto/evm_crypto.ml` is also the template `tron-crypto` follows for the hardened-sign / reference-recover split |
+| `ocaml-evm` | `../ocaml-evm` | `evm-abi` — the Contract ABI, reused unchanged for TVM calls. `lib/crypto/evm_crypto.ml` is also the template `tron-crypto` follows for the native recoverable-signing interface |
 | `ocaml-cardano` | `../ocaml-cardano` | The structural template: package split, `Mirage_flow.S` functor transport, `docs/switch.md`. `lib/rpc_flow/http.ml` is the source of our HTTP/1.1 parser |
 | `ocaml-solana` | `../ocaml-solana` | `lib/transaction/intent.ml` is the template for our intent and policy layer; its CI is the template for ours |
 | `ocaml-cometbft` | `../ocaml-cometbft` | Where the protobuf runtime was vendored first, before extraction into `ocaml-web3-codec` |
-| `mirage-crypto` fork | `../../ports/ocaml/mirage-crypto` | `mirage-crypto-ec`'s `P256k1.Dsa` and `mirage-crypto-blockchain`'s `Secp256k1` / `Keccak256`, neither yet upstream |
+| `mirage-crypto` fork | `../../ports/ocaml/mirage-crypto` | `mirage-crypto-secp256k1` for native signing and recovery |
 | `digestif` fork | `../../ports/ocaml/digestif` | The 1.4.0 series. `KECCAK_256` alone is available in released digestif; the fork is not required by this repository |
 
 In the `reuna-5.5` switch these are already pinned; see `docs/switch.md`.
