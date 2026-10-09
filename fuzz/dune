@@ -26,5 +26,6 @@
   tron-rpc-flow
   web3-codec-protobuf
   digestif
+  mirage-crypto-rng
   yojson
   crowbar))

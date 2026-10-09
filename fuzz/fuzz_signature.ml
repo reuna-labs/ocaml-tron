@@ -4,6 +4,15 @@
    that ever landed on one -- including the malleated and the merely odd -- and
    still refuse what could be mistaken for something else. *)
 
+(* Signing and public-key derivation blind the native libsecp256k1 context from
+   the Mirage default RNG, so it has to exist before the first property runs.
+   A fixed seed keeps a crash reproducible from its Crowbar input; it is not a
+   source of key material. *)
+let () =
+  Mirage_crypto_rng.set_default_generator
+    (Mirage_crypto_rng.create ~seed:(String.make 48 '\042')
+       (module Mirage_crypto_rng.Fortuna))
+
 let () =
   Crowbar.add_test ~name:"signature_of_bytes never raises" [ Crowbar.bytes ]
     (fun s ->
