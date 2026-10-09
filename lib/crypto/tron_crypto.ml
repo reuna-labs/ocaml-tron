@@ -77,8 +77,7 @@ let recover ~msg sg =
         match Reference.recover ~msg reference ~recid:sg.recid with
         | Error _ -> Error `Recovery_failed
         | exception _ -> Error `Recovery_failed
-        | Ok point ->
-            Ok point)
+        | Ok point -> Ok point)
 
 let sign_digest key digest =
   if String.length digest <> digest_length then Error `Invalid_digest

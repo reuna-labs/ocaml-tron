@@ -18,7 +18,13 @@
 (executable
  (name unikernel)
  (modules unikernel solo5_exit)
- (libraries mirage-crypto-rng tron-types tron-crypto tron-proto tron-transaction zarith)
+ (libraries
+  mirage-crypto-rng
+  tron-types
+  tron-crypto
+  tron-proto
+  tron-transaction
+  zarith)
  (enabled_if
   (= %{context_name} "default.solo5"))
  (foreign_stubs

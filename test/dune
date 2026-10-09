@@ -2,7 +2,12 @@
  (name test_types)
  (modules test_types)
  (package tron-types)
- (libraries mirage-crypto-rng tron-types alcotest qcheck-core qcheck-alcotest))
+ (libraries
+  mirage-crypto-rng
+  tron-types
+  alcotest
+  qcheck-core
+  qcheck-alcotest))
 
 ; The crypto tests read the conformance fixtures, so dune has to copy them into
 ; the build tree. They are data_only_dirs at the root, which is what stops dune
@@ -57,7 +62,13 @@
  (name test_rpc)
  (modules test_rpc)
  (package tron-rpc)
- (libraries mirage-crypto-rng tron-types tron-transaction tron-rpc yojson alcotest))
+ (libraries
+  mirage-crypto-rng
+  tron-types
+  tron-transaction
+  tron-rpc
+  yojson
+  alcotest))
 
 (test
  (name test_http)
@@ -81,7 +92,12 @@
  (package tron)
  (deps
   (glob_files ../conformance/fixtures/*.json))
- (libraries mirage-crypto-rng tron-types tron-crypto tron-transaction alcotest))
+ (libraries
+  mirage-crypto-rng
+  tron-types
+  tron-crypto
+  tron-transaction
+  alcotest))
 
 ; The G6 gate: HTTP and gRPC must decode to the same values. No socket -- each
 ; transport's decoder is fed a body the node would have sent, and the results

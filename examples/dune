@@ -6,7 +6,8 @@
  (name nile_transfer)
  (public_name tron-nile-transfer)
  (package tron-rpc-unix)
- (libraries mirage-crypto-rng.unix
+ (libraries
+  mirage-crypto-rng.unix
   tron-types
   tron-crypto
   tron-transaction

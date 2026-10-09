@@ -1,7 +1,9 @@
 (* Validation only: fixed entropy for a published test key. Deployments must
    initialize Mirage RNG from their trusted platform entropy source. *)
-let () = Mirage_crypto_rng.set_default_generator
-    (Mirage_crypto_rng.create ~seed:(String.make 48 '\042') (module Mirage_crypto_rng.Fortuna))
+let () =
+  Mirage_crypto_rng.set_default_generator
+    (Mirage_crypto_rng.create ~seed:(String.make 48 '\042')
+       (module Mirage_crypto_rng.Fortuna))
 
 (* Where the two oracles agree, ocaml-tron must match both. Where they
    disagree, the disagreement is recorded here as an assertion rather than

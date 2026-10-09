@@ -44,9 +44,9 @@
     {2 Timing}
 
     Signing and recovery use the native libsecp256k1 backend. Signatures use
-    RFC6979 deterministic nonces and low-S normalization. Public derivation
-    and signing require an initialized Mirage RNG for independent context
-    blinding; randomness does not change signature bytes. *)
+    RFC6979 deterministic nonces and low-S normalization. Public derivation and
+    signing require an initialized Mirage RNG for independent context blinding;
+    randomness does not change signature bytes. *)
 
 type private_key
 type public_key
