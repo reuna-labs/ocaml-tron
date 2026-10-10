@@ -14,14 +14,19 @@ on:
         required: true
         default: "1000000"
 
+permissions:
+  contents: read
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
     environment: nile
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: ocaml/setup-ocaml@v3
+      - uses: ocaml/setup-ocaml@93303b622b2522e4411e295f9e77411a24912ac7 # v3.9.0
         with:
           ocaml-compiler: "5.2.1"
 
@@ -40,10 +45,12 @@ jobs:
           tar --extract --xz --file "$archive" --directory "$source_dir" --strip-components 1
           cd "$source_dir" && ./configure --prefix="$gmp_prefix" --with-pic
           make -j"$(nproc)" && make install
-          echo "CPATH=$gmp_prefix/include" >> "$GITHUB_ENV"
-          echo "LIBRARY_PATH=$gmp_prefix/lib" >> "$GITHUB_ENV"
-          echo "LD_LIBRARY_PATH=$gmp_prefix/lib" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_PATH=$gmp_prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+          {
+            echo "CPATH=$gmp_prefix/include"
+            echo "LIBRARY_PATH=$gmp_prefix/lib"
+            echo "LD_LIBRARY_PATH=$gmp_prefix/lib"
+            echo "PKG_CONFIG_PATH=$gmp_prefix/lib/pkgconfig"
+          } >> "$GITHUB_ENV"
 
       - name: Pin the peer packages
         run: |
@@ -79,7 +86,7 @@ jobs:
       # The evidence is the point of the run, not a by-product of it.
       - name: Archive the evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nile-evidence
           path: nile-evidence/
