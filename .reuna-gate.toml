@@ -1,0 +1,11 @@
+# reuna-gate configuration; see ~/reuna/infra/gates/README.md.
+
+[ocaml]
+# Not a code finding: the switch this repository builds in cannot run the
+# tests. Re-enable once reuna-5.5 is restored additively (see ~/reuna/AGENTS.md,
+# Gotchas); formatting is still checked, by [extra] below.
+enabled = false
+reason = "reuna-5.5 lacks mirage-crypto-secp256k1, so dune build @runtest cannot build; @fmt runs from [extra]"
+
+[extra]
+quick = ["opam exec -- dune build @fmt"]

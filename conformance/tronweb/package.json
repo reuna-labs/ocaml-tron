@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "tronweb": "6.5.0"
+  },
+  "overrides": {
+    "axios": "1.20.0"
   }
 }
