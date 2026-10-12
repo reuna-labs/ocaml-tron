@@ -108,3 +108,21 @@ opam install --switch web3-protoc ocaml-protoc-plugin.6.2.0
 Generated sources are committed, so this switch is needed only when the schema
 pin moves. An ordinary build, and CI, never touch it. The regeneration command
 is in `docs/protocol-pin.md`.
+
+## Measured 2026-10-12: it does not build here, and no additive install fixes that
+
+`opam install --switch reuna-5.5 --deps-only --with-test --show-actions .`
+plans a downgrade of `digestif` from `dev` to `1.4.0`, which recompiles 14–16
+packages, among them `tls`, `x509` and the mirage-crypto stack nethsm's
+unikernels use. The switch's `digestif` is the Reuna fork pinned under the
+version label `dev`. opam orders `dev` below every number, so this
+repository's `digestif >= 1.2.0` cannot be met by it. The fork this repository
+needs (see `pin-depends`) would install on its own; the label is what forces
+the rebuild.
+
+So this is not an additive change, and the rule above forbids it. Relabelling
+the shared switch's pins is a deliberate rebuild of nethsm's toolchain and the
+owner's decision (`~/reuna/AGENTS.md`, the `reuna-5.5` gotcha). Until then,
+install the published packages from the public overlay in a pinned
+`ocaml/opam` 5.5 container (the way the sibling repositories'
+`tools/*-check.sh` do), or build in a switch of your own.
